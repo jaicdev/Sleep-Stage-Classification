@@ -1,4 +1,3 @@
-```markdown
 # Sleep Stage Classification and EDA
 
 This repository provides Python scripts for sleep stage classification using EEG data. It includes code for both Exploratory Data Analysis (EDA) and machine learning models (with and without class balancing). These scripts are based on MNE-Python and SciKit-Learn.
@@ -23,7 +22,7 @@ The project contains three main scripts:
 Before running the scripts, ensure you have the following Python packages installed:
 ```bash
 pip install numpy matplotlib seaborn mne scipy scikit-learn pywavelets
-```
+
 
 ## Usage
 
