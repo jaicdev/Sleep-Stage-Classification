@@ -11,9 +11,10 @@ from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 import matplotlib.pyplot as plt
 import seaborn as sns
+import argparse
 
 class SleepStageAnalysis:
-    def __init__(self, folder_path):
+    def __init__(self, folder_path, wavelet='db4'):
         self.folder_path = folder_path
         self.event_id = {
             'Sleep stage W': 1,
@@ -22,7 +23,7 @@ class SleepStageAnalysis:
             'Sleep stage N3': 4,
             'Sleep stage R': 5
         }
-        self.wavelet = 'db4'  # Daubechies 4 wavelet
+        self.wavelet = wavelet  # Wavelet type (e.g., 'db4', 'coif5', 'bior1.3')
         self.levels = 5  # Number of decomposition levels
         self.psg_files, self.hyp_files = self._get_files()
 
@@ -50,6 +51,7 @@ class SleepStageAnalysis:
         return epochs
 
     def wavelet_decomposition(self, signal):
+        # Perform wavelet decomposition using the specified wavelet
         coeffs = pywt.wavedec(signal, wavelet=self.wavelet, level=self.levels)
         return coeffs
 
@@ -158,10 +160,14 @@ class SleepStageAnalysis:
         plt.show()
 
 def main():
-    # Initialize the analysis
+    parser = argparse.ArgumentParser(description="Sleep Stage Classification with Different Wavelets")
+    parser.add_argument('--wavelet', type=str, default='db4', help='Wavelet type to use (e.g., db4, coif5, bior1.3)')
+    args = parser.parse_args()
+
+    # Initialize the analysis with the specified wavelet
     folder_path = 'E:/ME Disseratation/Data/hmc-sleep-staging/1.0.1/recordings/edf'
-    analysis = SleepStageAnalysis(folder_path)
-    
+    analysis = SleepStageAnalysis(folder_path, wavelet=args.wavelet)
+
     # Prepare data
     X_train, X_test, y_train, y_test = analysis.prepare_data(num_files=30)
 
