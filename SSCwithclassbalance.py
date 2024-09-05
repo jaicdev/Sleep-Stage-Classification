@@ -161,11 +161,7 @@ def main():
     # Initialize the analysis
     folder_path = 'E:/ME Disseratation/Data/hmc-sleep-staging/1.0.1/recordings/edf'
     analysis = SleepStageAnalysis(folder_path)
-
-    # Remove specified files
-    rem_list = ['SN010', 'SN011', 'SN012', 'SN013', 'SN014', 'SN017', 'SN018', 'SN026', 'SN030', 'SN032', 'SN033', 'SN135']
-    analysis.remove_files(rem_list)
-
+    
     # Prepare data
     X_train, X_test, y_train, y_test = analysis.prepare_data(num_files=30)
 
