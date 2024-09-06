@@ -12,7 +12,7 @@ from sklearn.preprocessing import StandardScaler
 import matplotlib.pyplot as plt
 import seaborn as sns
 import argparse
-from collections import Counter
+from imblearn.over_sampling import SMOTE  # Import SMOTE for oversampling
 
 class SleepStageAnalysis:
     def __init__(self, folder_path, wavelet='db4'):
@@ -107,39 +107,33 @@ class SleepStageAnalysis:
         y = combined_epochs.events[:, 2]
         
         # Split data into training and test sets
-        return train_test_split(X, y, test_size=0.2, random_state=42)
-
-    def compute_sample_weights(self, y):
-        """Compute sample weights based on class distribution."""
-        class_counts = Counter(y)
-        total_samples = len(y)
-        sample_weights = {cls: total_samples / (len(class_counts) * count) for cls, count in class_counts.items()}
-        return np.array([sample_weights[cls] for cls in y])
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+        
+        # Apply SMOTE to balance the training data
+        smote = SMOTE(random_state=42)
+        X_train_res, y_train_res = smote.fit_resample(X_train, y_train)
+        
+        return X_train_res, X_test, y_train_res, y_test
 
     def train_models(self, X_train, y_train):
-        sample_weights = self.compute_sample_weights(y_train)  # Compute sample weights for GradientBoosting
-
         models = {
             'Random Forest': make_pipeline(
                 StandardScaler(),
-                RandomForestClassifier(n_estimators=100, random_state=42, class_weight='balanced')  # Class-weight added
+                RandomForestClassifier(n_estimators=100, random_state=42)
             ),
             'Gradient Boosting': make_pipeline(
                 StandardScaler(),
-                GradientBoostingClassifier(n_estimators=100, random_state=42)  # Use sample weights during training
+                GradientBoostingClassifier(n_estimators=100, random_state=42)
             ),
             'Support Vector Machine': make_pipeline(
                 StandardScaler(),
-                SVC(kernel='rbf', random_state=42, class_weight='balanced')  # Class-weight added
+                SVC(kernel='rbf', random_state=42)
             )
         }
         
         for name, model in models.items():
             print(f"Training {name}...")
-            if name == 'Gradient Boosting':
-                model.fit(X_train, y_train, gradientboostingclassifier__sample_weight=sample_weights)  # Pass sample weights
-            else:
-                model.fit(X_train, y_train)
+            model.fit(X_train, y_train)
         
         return models
 
@@ -182,10 +176,10 @@ def main():
     folder_path = 'E:/ME Disseratation/Data/hmc-sleep-staging/1.0.1/recordings/edf'
     analysis = SleepStageAnalysis(folder_path, wavelet=args.wavelet)
 
-    # Prepare data
+    # Prepare data with SMOTE
     X_train, X_test, y_train, y_test = analysis.prepare_data(num_files=30)
 
-    # Train models with class weights and sample weights for GradientBoosting
+    # Train models
     models = analysis.train_models(X_train, y_train)
 
     # Evaluate models
