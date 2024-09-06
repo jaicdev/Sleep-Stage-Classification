@@ -9,19 +9,21 @@ This repository provides Python scripts for sleep stage classification using EEG
 - [Wavelet Variants](#wavelet-variants)
 - [Scripts](#scripts)
   - [SSC_EDA.py](#sscedapy)
+  - [SSCwithSMOTE.py](#sscwithsmotepy)
   - [SSCwithclassbalance.py](#sscwithclassbalancepy)
   - [SSCwithoutclassbalance.py](#sscwithoutclassbalancepy)
   
 ## Overview
-The project contains three main scripts:
+The project contains four main scripts:
 1. `SSC_EDA.py`: Performs exploratory data analysis (EDA) on EEG data, including signal plotting, power spectral density, event distributions, and channel correlations.
-2. `SSCwithclassbalance.py`: A machine learning pipeline for classifying sleep stages, with class balancing and support for multiple wavelet transforms.
-3. `SSCwithoutclassbalance.py`: Similar to the previous script, but without class balancing, and also supporting multiple wavelet transforms.
+2. `SSCwithSMOTE.py`: A machine learning pipeline for classifying sleep stages using SMOTE (Synthetic Minority Oversampling Technique) to handle class imbalance and support for multiple wavelet transforms.
+3. `SSCwithclassbalance.py`: A machine learning pipeline for classifying sleep stages using class weighting to handle class imbalance and support for multiple wavelet transforms.
+4. `SSCwithoutclassbalance.py`: Similar to the previous scripts, but without class balancing, and also supporting multiple wavelet transforms.
 
 ## Requirements
 Before running the scripts, ensure you have the following Python packages installed:
 ```bash
-pip install numpy matplotlib seaborn mne scipy scikit-learn pywavelets
+pip install numpy matplotlib seaborn mne scipy scikit-learn pywavelets imbalanced-learn
 ```
 
 ## Usage
@@ -48,14 +50,14 @@ python SSCwithclassbalance.py --wavelet coif5
 If no wavelet is specified, the default wavelet (`db4`) is used.
 
 ## Wavelet Variants
-The classification scripts (`SSCwithclassbalance.py` and `SSCwithoutclassbalance.py`) now support different wavelet families for feature extraction using the PyWavelets library. You can use the following wavelet variants:
+The classification scripts (`SSCwithSMOTE.py`, `SSCwithclassbalance.py`, and `SSCwithoutclassbalance.py`) support different wavelet families for feature extraction using the PyWavelets library. You can use the following wavelet variants:
 - **Daubechies (db)**: For example, `db4`
 - **Coiflet (coif)**: For example, `coif5`
 - **Biorthogonal (bior)**: For example, `bior1.3`
 
 You can specify the wavelet to use by passing it as a command-line argument when running the script:
 ```bash
-python SSCwithclassbalance.py --wavelet coif5
+python SSCwithSMOTE.py --wavelet coif5
 ```
 
 If no wavelet is specified, the default wavelet `db4` is used.
@@ -82,9 +84,25 @@ python SSC_EDA.py
 - Histograms for epoch variance and mean
 - Correlation matrix heatmap
 
+### SSCwithSMOTE.py
+
+This script performs sleep stage classification using machine learning models with SMOTE (Synthetic Minority Over-sampling Technique) to handle class imbalance. It supports Random Forest, Gradient Boosting, and Support Vector Machine (SVM) classifiers. You can also choose which wavelet to use for feature extraction by passing it as a command-line argument.
+
+#### Example
+```bash
+python SSCwithSMOTE.py --wavelet coif5
+```
+
+#### Expected Outputs
+- Confusion matrices and classification reports for each model
+- Model comparison in terms of accuracy
+
+#### Command-line Arguments
+- `--wavelet`: Specify the wavelet type to use. Supported wavelets include `db4`, `coif5`, `bior1.3`. Default is `db4`.
+
 ### SSCwithclassbalance.py
 
-This script performs sleep stage classification using machine learning models with class balancing. It supports Random Forest, Gradient Boosting, and Support Vector Machine (SVM) classifiers. You can also choose which wavelet to use for feature extraction by passing it as a command-line argument.
+This script performs sleep stage classification using machine learning models with class weighting to handle class imbalance. It supports Random Forest, Gradient Boosting, and Support Vector Machine (SVM) classifiers. You can also choose which wavelet to use for feature extraction by passing it as a command-line argument.
 
 #### Example
 ```bash
@@ -100,7 +118,7 @@ python SSCwithclassbalance.py --wavelet coif5
 
 ### SSCwithoutclassbalance.py
 
-Similar to the previous script but without class balancing. This script also supports different wavelet types for feature extraction and classification using Random Forest, Gradient Boosting, and SVM models.
+This script performs sleep stage classification using machine learning models **without any class balancing techniques**. It supports Random Forest, Gradient Boosting, and SVM classifiers, and allows for wavelet-based feature extraction.
 
 #### Example
 ```bash
